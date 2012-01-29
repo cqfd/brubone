@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+
+import os
+import requests
+import shutil
+import sys
+
+ROOT = os.path.join(os.path.dirname(__file__), '../')
+
+SCRIPTS = {
+    'backbone' : 'http://documentcloud.github.com/backbone/backbone.js',
+    'backbone-min' : 'http://documentcloud.github.com/backbone/backbone-min.js',
+    'underscore' : 'http://documentcloud.github.com/underscore/underscore.js',
+    'underscore-min' : 'http://documentcloud.github.com/underscore/underscore-min.js',
+    'jquery' : 'http://code.jquery.com/jquery-1.7.1.js',
+    'jquery-min' : 'http://code.jquery.com/jquery-1.7.1.min.js'
+}
+
+def install_dependencies(path):
+    print "Fetching backbone dependencies..."
+    for name, link in SCRIPTS.items():
+        r = requests.get(link)
+        script_path = os.path.join(path, 'js/%s.js' % name)
+        f = open(script_path, 'w')
+        f.write(r.content)
+        f.close()
+
+def create_project_dir(path):
+    print "Creating project directory..."
+
+    try:
+        shutil.copytree(os.path.join(ROOT, 'starter'), path)
+    except OSError:
+        print "Aborting: There's already a %r directory!" % path
+        exit(1)
+
+def create_new_project(project):
+    project_dir = os.path.join(os.getcwd(), project)
+
+    create_project_dir(project_dir)
+    install_dependencies(project_dir)
+
+    print "Happy hacking!"
+
+if __name__ == '__main__':
+    project = sys.argv[1]
+    create_new_project(project)
