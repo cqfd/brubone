@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import jinja2
 import os
 import requests
 import shutil
@@ -25,7 +26,7 @@ def install_dependencies(path):
         f.write(r.content)
         f.close()
 
-def create_project_dir(path):
+def create_project_skeleton(path):
     print "Creating project directory..."
 
     try:
@@ -34,11 +35,31 @@ def create_project_dir(path):
         print "Aborting: There's already a %r directory!" % path
         exit(1)
 
-def create_new_project(project):
-    project_dir = os.path.join(os.getcwd(), project)
+def templatize_skeleton(dir_path, context):
+    for dpath, dnames, fnames in os.walk(dir_path):
+        for f in fnames:
+            fpath = os.path.join(dpath, f)
+            templatize(fpath, context)
 
-    create_project_dir(project_dir)
-    install_dependencies(project_dir)
+def templatize(path, context):
+    f = open(path, 'r')
+    text = f.read()
+    f.close()
+    template = jinja2.Template(text)
+    f = open(path, 'w')
+    output = template.render(**context)
+    f.write(output)
+    f.close()
+
+def create_new_project(project):
+    template_context = {
+        'project' : project
+    }
+    project_dirpath = os.path.join(os.getcwd(), project)
+
+    create_project_skeleton(project_dirpath)
+    templatize_skeleton(project_dirpath, template_context)
+    install_dependencies(project_dirpath)
 
     print "Happy hacking!"
 
