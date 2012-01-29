@@ -1,7 +1,7 @@
-from brubeck.request_handling import Brubeck
+from brubeck.request_handling import Brubeck, WebMessageHandler
 from brubeck.templating import Jinja2Rendering, load_jinja2_env
 
-class RootHandler(Jinja2Rendering):
+class RootHandler(WebMessageHandler, Jinja2Rendering):
     def get(self):
         return self.render_template('index.html')
 

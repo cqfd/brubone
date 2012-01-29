@@ -5,6 +5,7 @@ import os
 import requests
 import shutil
 import sys
+import uuid
 
 ROOT = os.path.join(os.path.dirname(__file__), '../')
 
@@ -19,9 +20,10 @@ SCRIPTS = {
 
 def install_dependencies(path):
     print "Fetching backbone dependencies..."
+    script_dirpath = os.path.join(path, 'static/js')
     for name, link in SCRIPTS.items():
         r = requests.get(link)
-        script_path = os.path.join(path, 'js/%s.js' % name)
+        script_path = os.path.join(script_dirpath, '%s.js' % name)
         f = open(script_path, 'w')
         f.write(r.content)
         f.close()
@@ -30,7 +32,7 @@ def create_project_skeleton(path):
     print "Creating project directory..."
 
     try:
-        shutil.copytree(os.path.join(ROOT, 'starter'), path)
+        shutil.copytree(os.path.join(ROOT, 'skeleton'), path)
     except OSError:
         print "Aborting: There's already a %r directory!" % path
         exit(1)
@@ -53,7 +55,9 @@ def templatize(path, context):
 
 def create_new_project(project):
     template_context = {
-        'project' : project
+        'project' : project,
+        'handler_uuid' : str(uuid.uuid4()),
+        'server_uuid' : str(uuid.uuid4())
     }
     project_dirpath = os.path.join(os.getcwd(), project)
 
